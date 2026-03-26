@@ -1,0 +1,191 @@
+-- -- 1. roles
+-- CREATE TABLE roles (
+--                        id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+--                        created_at  TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+--                        updated_at  TIMESTAMP WITH TIME ZONE,
+--                        deleted_at  TIMESTAMP WITH TIME ZONE,
+--                        deleted     BOOLEAN NOT NULL DEFAULT FALSE,
+--
+--                        role        VARCHAR(50) NOT NULL
+-- );
+--
+-- -- 2. users
+-- CREATE TABLE users (
+--                        id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+--                        created_at      TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+--                        updated_at      TIMESTAMP WITH TIME ZONE,
+--                        deleted_at      TIMESTAMP WITH TIME ZONE,
+--                        deleted         BOOLEAN NOT NULL DEFAULT FALSE,
+--
+--                        name            VARCHAR(255),
+--                        username        VARCHAR(255) UNIQUE,
+--                        phone_number    VARCHAR(255) NOT NULL,
+--                        user_status     VARCHAR(50) NOT NULL DEFAULT 'ACTIVE',
+--                        password        VARCHAR(255)
+-- );
+--
+-- -- 3. users_roles (many-to-many)
+-- CREATE TABLE users_roles (
+--                              user_id     UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+--                              role_id     UUID NOT NULL REFERENCES roles(id) ON DELETE CASCADE,
+--                              PRIMARY KEY (user_id, role_id)
+-- );
+--
+-- -- 4. customers
+-- CREATE TABLE customers (
+--                            id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+--                            created_at  TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+--                            updated_at  TIMESTAMP WITH TIME ZONE,
+--                            deleted_at  TIMESTAMP WITH TIME ZONE,
+--                            deleted     BOOLEAN NOT NULL DEFAULT FALSE,
+--
+--                            user_id     UUID UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+--                            location    GEOMETRY(POINT, 4326)
+-- );
+--
+-- -- 5. couriers
+-- CREATE TABLE couriers (
+--                           id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+--                           created_at      TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+--                           updated_at      TIMESTAMP WITH TIME ZONE,
+--                           deleted_at      TIMESTAMP WITH TIME ZONE,
+--                           deleted         BOOLEAN NOT NULL DEFAULT FALSE,
+--
+--                           user_id         UUID UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+--                           courier_type    VARCHAR(50),
+--                           vehicle_number  VARCHAR(50),
+--                           car_model       VARCHAR(100),
+--                           is_online       BOOLEAN NOT NULL DEFAULT FALSE
+-- );
+--
+-- -- 6. categories
+-- CREATE TABLE categories (
+--                             id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+--                             created_at  TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+--                             updated_at  TIMESTAMP WITH TIME ZONE,
+--                             deleted_at  TIMESTAMP WITH TIME ZONE,
+--                             deleted     BOOLEAN NOT NULL DEFAULT FALSE,
+--
+--                             name        VARCHAR(255) NOT NULL UNIQUE,
+--                             image_url   VARCHAR(512),
+--                             sort_order  INTEGER NOT NULL DEFAULT 0,
+--                             active      BOOLEAN NOT NULL DEFAULT TRUE
+-- );
+--
+-- -- 7. products
+-- CREATE TABLE products (
+--                           id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+--                           created_at      TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+--                           updated_at      TIMESTAMP WITH TIME ZONE,
+--                           deleted_at      TIMESTAMP WITH TIME ZONE,
+--                           deleted         BOOLEAN NOT NULL DEFAULT FALSE,
+--
+--                           name            VARCHAR(255) NOT NULL,
+--                           description     TEXT,
+--                           image_url       VARCHAR(512),
+--                           price           DECIMAL(19,2) NOT NULL,
+--                           stock_quantity  INTEGER,
+--                           unit            VARCHAR(50),
+--                           active          BOOLEAN NOT NULL DEFAULT TRUE
+-- );
+--
+-- -- 8. product_categories (many-to-many)
+-- CREATE TABLE product_categories (
+--                                     product_id      UUID NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+--                                     category_id     UUID NOT NULL REFERENCES categories(id) ON DELETE CASCADE,
+--                                     PRIMARY KEY (product_id, category_id)
+-- );
+--
+-- -- 9. promotions
+-- CREATE TABLE promotions (
+--                             id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+--                             created_at          TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+--                             updated_at          TIMESTAMP WITH TIME ZONE,
+--                             deleted_at          TIMESTAMP WITH TIME ZONE,
+--                             deleted             BOOLEAN NOT NULL DEFAULT FALSE,
+--
+--                             title               VARCHAR(255) NOT NULL,
+--                             discount_percentage INTEGER,
+--                             fixed_discount_amount DECIMAL(19,2),
+--                             start_date          TIMESTAMP WITH TIME ZONE NOT NULL,
+--                             end_date            TIMESTAMP WITH TIME ZONE NOT NULL,
+--                             active              BOOLEAN NOT NULL DEFAULT TRUE
+-- );
+--
+-- -- 10. orders
+-- CREATE TABLE orders (
+--                         id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+--                         created_at      TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+--                         updated_at      TIMESTAMP WITH TIME ZONE,
+--                         deleted_at      TIMESTAMP WITH TIME ZONE,
+--                         deleted         BOOLEAN NOT NULL DEFAULT FALSE,
+--
+--                         customer_id     UUID NOT NULL REFERENCES customers(id),
+--                         courier_id      UUID REFERENCES couriers(id),
+--                         status          VARCHAR(50) NOT NULL DEFAULT 'PENDING',
+--                         total_price     DECIMAL(19,2),
+--                         delivery_address GEOMETRY(POINT, 4326),
+--                         contact_phone   VARCHAR(50)
+-- );
+--
+-- -- 11. order_items
+-- CREATE TABLE order_items (
+--                              id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+--                              created_at          TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+--                              updated_at          TIMESTAMP WITH TIME ZONE,
+--                              deleted_at          TIMESTAMP WITH TIME ZONE,
+--                              deleted             BOOLEAN NOT NULL DEFAULT FALSE,
+--
+--                              order_id            UUID NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
+--                              quantity            INTEGER NOT NULL,
+--                              price_at_order      DECIMAL(19,2) NOT NULL,
+--                              variant_name_snapshot VARCHAR(255)
+-- );
+--
+-- -- 12. reviews
+-- CREATE TABLE reviews (
+--                          id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+--                          created_at      TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+--                          updated_at      TIMESTAMP WITH TIME ZONE,
+--                          deleted_at      TIMESTAMP WITH TIME ZONE,
+--                          deleted         BOOLEAN NOT NULL DEFAULT FALSE,
+--
+--                          order_id        UUID NOT NULL UNIQUE REFERENCES orders(id) ON DELETE CASCADE,
+--                          customer_id     UUID NOT NULL REFERENCES customers(id),
+--                          food_rating     INTEGER,
+--                          food_comment    TEXT,
+--                          delivery_rating INTEGER,
+--                          delivery_comment TEXT,
+--                          is_visible      BOOLEAN NOT NULL DEFAULT TRUE
+-- );
+--
+-- -- 13. banners
+-- CREATE TABLE banners (
+--                          id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+--                          created_at  TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+--                          updated_at  TIMESTAMP WITH TIME ZONE,
+--                          deleted_at  TIMESTAMP WITH TIME ZONE,
+--                          deleted     BOOLEAN NOT NULL DEFAULT FALSE,
+--
+--                          title       VARCHAR(255),
+--                          image_url   VARCHAR(512),
+--                          redirect_url VARCHAR(512),
+--                          sort_order  INTEGER,
+--                          expires_at  TIMESTAMP WITH TIME ZONE,
+--                          active      BOOLEAN NOT NULL DEFAULT TRUE
+-- );
+--
+-- -- 14. chat_messages
+-- CREATE TABLE chat_messages (
+--                                id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+--                                created_at  TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+--                                updated_at  TIMESTAMP WITH TIME ZONE,
+--                                deleted_at  TIMESTAMP WITH TIME ZONE,
+--                                deleted     BOOLEAN NOT NULL DEFAULT FALSE,
+--
+--                                sender_id       UUID NOT NULL,
+--                                recipient_id    UUID NOT NULL,
+--                                content         TEXT NOT NULL,
+--                                status          VARCHAR(50),
+--                                chat_type       VARCHAR(50)
+-- );

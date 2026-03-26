@@ -1,0 +1,58 @@
+
+services:
+  # 1. PostgreSQL - Ma'lumotlar bazasi
+  db:
+    # Oddiy postgres emas, PostGIS o'rnatilgan versiyani ishlatamiz
+    image: postgis/postgis:15-3.3-alpine
+    container_name: food-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: food
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1997
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db:/docker-entrypoint-initdb.d
+
+  # 2. Redis - Kesh va Session boshqaruvi uchun
+  redis:
+    image: redis:7-alpine
+    container_name: food-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    command: redis-server --save 60 1 --loglevel warning
+
+  # 3. MinIO - Rasmlar va fayllar saqlash uchun (S3 alternative)
+  minio:
+    image: minio/minio
+    container_name: food-minio
+    restart: always
+    ports:
+      - "9000:9000"       # API port
+      - "9001:9001"       # Console (UI) port
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+
+  # 4. Create Bucket - MinIO ishga tushganda avtomatik bucket yaratish
+  createbuckets:
+    image: minio/mc
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc alias set myminio http://minio:9000 minioadmin minioadmin;
+      /usr/bin/mc mb myminio/food-delivery-bucket;
+      /usr/bin/mc anonymous set public myminio/food-delivery-bucket;
+      exit 0;
+      "
+
+volumes:
+  postgres_data:
+  minio_data:
