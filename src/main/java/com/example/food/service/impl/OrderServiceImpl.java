@@ -63,14 +63,15 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public OrderDto.OrderResponseForMonitor createOrder(OrderDto.OrderRequest request) {
         User currentUser = SecurityUtils.getCurrentUser();
-        Branch branch = branchService.getMainBranch(); // 1. Restoranni topamiz
+//        Branch branch = branchService.getMainBranch(); // 1. Restoranni topamiz
 
         // 2. Mijoz koordinatasi
         Point customerLoc = geometryFactory.createPoint(new Coordinate(request.longitude(), request.latitude()));
         customerLoc.setSRID(4326);
 
         // 3. Masofani hisoblash
-        Double distanceInMeters = branchRepository.calculateDistance(branch.getLocation(), customerLoc);
+//        Double distanceInMeters = branchRepository.calculateDistance(branch.getLocation(), customerLoc);
+        double distanceInMeters = 1.2;
         BigDecimal deliveryFee = branchService.calculateDeliveryFee(distanceInMeters);
 
         // 4. Order yaratish
