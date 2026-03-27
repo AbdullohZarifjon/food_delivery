@@ -24,13 +24,15 @@ public class SwaggerConfig {
                         .version("1.0")
                         .description("Food delivery backend API"))
                 .servers(List.of(
+                        // HTTPS birinchi tursin!
+                        new Server().url("https://food.buildunitech.com").description("Production"),
+
                         // 1. Local muhit uchun
                         new Server().url("http://localhost:8080").description("Local Server"),
 
                         // 2. Sizning yangi STATIC Ngrok domeningiz
-                        new Server().url("https://wai-nonappropriable-hamza.ngrok-free.dev").description("Ngrok Static Server"),
+                        new Server().url("https://wai-nonappropriable-hamza.ngrok-free.dev").description("Ngrok Static Server")
 
-                        new Server().url("https://food.buildunitech.com").description("Food automatic application")
                 ))
                 .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
                 .components(new Components()
