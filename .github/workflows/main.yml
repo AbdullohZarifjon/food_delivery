@@ -40,18 +40,19 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-      # - name: Log in to Server and Restarting Docker
-      #   uses: appleboy/ssh-action@master
-      #   with:
-      #     host: 167.172.76.94
-      #     username: root
-      #     key: ${{ secrets.SSH_PRIVATE_KEY }}
-      #     port: 22
-      #     script: |
-      #       cd /root/project/backend
-      #       ls
-      #       kubectl delete -f deployment.yaml 
-      #       kubectl apply -f deployment.yaml
+      - name: Log in to Server and Restarting Docker
+        uses: appleboy/ssh-action@master
+        with:
+          host: 104.248.156.125
+          username: root
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            cd /root/projects/food_sd
+            ls
+            docker compose -f backend.docker-compose.yml down -v
+            docker image prune
+            docker compose -f backend.docker-compose.yml up --build -d
 
 
       - name: Telegram Notifications on Success
@@ -79,3 +80,4 @@ jobs:
               Commit message: ${{ github.event.commits[0].message }}
               Repository: ${{ github.repository }}
               See changes: https://github.com/${{ github.repository }}/commit/${{github.sha}}
+
