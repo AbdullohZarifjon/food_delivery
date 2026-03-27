@@ -28,7 +28,9 @@ public class SwaggerConfig {
                         new Server().url("http://localhost:8080").description("Local Server"),
 
                         // 2. Sizning yangi STATIC Ngrok domeningiz
-                        new Server().url("https://wai-nonappropriable-hamza.ngrok-free.dev").description("Ngrok Static Server")
+                        new Server().url("https://wai-nonappropriable-hamza.ngrok-free.dev").description("Ngrok Static Server"),
+
+                        new Server().url("https://food.buildunitech.com").description("Food automatic application")
                 ))
                 .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
                 .components(new Components()
